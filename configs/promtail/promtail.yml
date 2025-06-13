@@ -1,0 +1,64 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: system
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: varlogs
+          __path__: /var/log/*.log
+
+  - job_name: docker
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: docker
+          __path__: /var/lib/docker/containers/*/*.log
+          __path__label__: container_path
+    relabel_configs:
+      - source_labels: [__path__]
+        regex: '.*/containers/([^/]+)/.*'
+        target_label: container_id
+
+      - source_labels: [__path__]
+        regex: '.*/containers/([^/]+)/.*'
+        target_label: container_name
+        replacement: '${1}'
+  
+  - job_name: postgres-logs
+    static_configs:
+      - targets: ["localhost"]
+        labels:
+          job: postgres-logs
+          __path__: /var/log/postgresql/*.log
+
+  - job_name: redis-logs
+    static_configs:
+      - targets: ["localhost"]
+        labels:
+          job: redis-logs
+          __path__: /var/log/redis/*.log
+
+  - job_name: elasticsearch-logs
+    static_configs:
+      - targets: ["localhost"]
+        labels:
+          job: elasticsearch-logs
+          __path__: /var/log/elasticsearch/*.log
+
+  - job_name: clickhouse-logs
+    static_configs:
+      - targets: ["localhost"]
+        labels:
+          job: clickhouse-logs
+          __path__: /var/log/clickhouse-server/*.log

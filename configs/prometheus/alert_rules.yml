@@ -1,0 +1,38 @@
+groups:
+  - name: instance-alerts
+    rules:
+      - alert: InstanceDown
+        expr: up == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Instance {{ $labels.instance }} is down"
+          description: "{{ $labels.instance }} has been unreachable for more than 2 minutes."
+
+      - alert: HighCPUUsage
+        expr: rate(container_cpu_usage_seconds_total[1m]) * 100 > 80
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage on {{ $labels.container }}"
+          description: "Container {{ $labels.container }} has > 80% CPU."
+
+      - alert: HighMemoryUsage
+        expr: container_memory_usage_bytes / container_spec_memory_limit_bytes * 100 > 90
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage on {{ $labels.container }}"
+          description: "Container {{ $labels.container }} has > 90% memory usage."
+
+      - alert: ExporterDown
+        expr: up{job=~".*exporter.*"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "{{ $labels.job }} exporter down"
+          description: "Exporter {{ $labels.job }} at {{ $labels.instance }} is not reachable."
