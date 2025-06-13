@@ -155,7 +155,7 @@ services:
     image: quay.io/prometheuscommunity/elasticsearch-exporter:latest
     container_name: elasticsearch-exporter
     environment:
-      - ES_URI=http://14.192.1.134:9200
+      - ES_URI=http://172.168.168.253:9200
     ports:
       - "9114:9114"
     networks:
